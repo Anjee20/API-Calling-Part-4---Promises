@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>API Calling Part 4 - Promises</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.10.0/axios.min.js" integrity="sha512-WkZrEcQ5LMyNy6Y2PQf+Tu3vMcsmKKRKuPXtJSTHQJ3mpuvLRlA5dlDDhrrcXfyWr6Z/y3wIMfjfqVFO/gDZYQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    </head>
+    <body>
+
+        <div class="d-flex justify-content-center a_myloader">
+            <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <button class="btn btn-info a_getdata">Get Data</button>
+        
+        <script>
+
+            var a_myloader = document.querySelector('div.a_myloader');
+            document.querySelector('.a_getdata').addEventListener('click',function(){
+                
+                //Lets create a promise object
+
+                //Let object = new ClassName()
+                let x = new Promise(function(resolve,reject){
+                    //Producing Code
+                    //API Calling
+
+                    //axios.get(url,config)
+                    axios.get("https://fakerestapi.azurewebsites.net/api/v1/Books")
+                    .then(function(response){
+                        console.log('Producing Code: ',response);
+
+                        if (response.status == 200) {
+                            resolve(response.data);
+                        } else {
+                            reject('error');
+                        }
+                    });
+
+
+                });
+
+                //Consuming Code
+                //PromiseObject.then().catch()
+                x.then(function(data){
+                    a_myloader.remove();                    
+                    //success
+                    console.log('Consuming Code: ',data);
+                    var tr = `<table class="table">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Id</th>
+                                        <th scope="col">Title</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Page Count</th>
+                                        <th scope="col">Excerpt</th>
+                                        <th scope="col">Publish Date</th>
+                                        <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                    data.forEach(element => {
+                        console.log(element);
+                        tr = tr + `<tr>
+                                        <td>`+element.id+`</td>
+                                        <td>`+element.title+`</td>
+                                        <td>`+element.description+`</td>
+                                        <td>`+element.pageCount+`</td>
+                                        <td>`+element.excerpt+`</td>
+                                        <td>`+element.publishDate+`</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success">View</button>
+                                            <button class="btn btn-sm btn-primary">Edit</button>
+                                            <button class="btn btn-sm btn-danger">Delete</button>
+                                        </td>
+                                    </tr>`;
+                    });
+
+                    tr = tr + `</tbody>
+                            </table>`;
+                    console.log(tr);
+
+                    document.body.innerHTML = document.body.innerHTML + tr;
+                }).catch(function(error){
+
+                });
+            });
+
+            
+
+        </script>
+
+    </body>
+</html>
