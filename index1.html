@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>API Calling with JQuery Part - 5</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    </head>
+    <body>
+
+        <div class="d-flex justify-content-center a_myloader">
+            <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn_getauthor">Get Authors</button>
+
+        <script>
+            var loader = document.querySelector('.a_myloader');
+            loader.classList.add('invisible');
+
+            document.querySelector('button.btn_getauthor').addEventListener('click',function(){
+                //alert('OK');
+                /*if (loader.classList.contains('invisible')) {
+                    console.log('true');
+                    loader.classList.remove('invisible');
+                    loader.classList.add('visible');
+                }else{
+                    console.log('false');
+                    loader.classList.remove('visible');
+                    loader.classList.add('invisible');
+                }*/
+
+                let po = new Promise(function(resolve,reject){
+
+                    $.ajax({
+                        url:'https://fakerestapi.azurewebsites.net/api/v1/Authors',
+                        type:'GET',
+                        success:function(result,status,xhr){
+                            console.log('Success block from jquery: ',result);
+                            resolve(result);
+                        },
+                        error:function(xhr,status,error){
+                            reject(error);
+                        }
+                    });
+                });
+
+                po.then(function(data){
+                    
+                    console.log('Consuming code from promise object: ',data);
+                   
+                    var tr = `<table class="table">
+                                <thead>
+                                    <tr>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Book Id</th>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                    <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                    data.forEach(element => {
+                        console.log(element);
+                        tr += `<tr>
+                                    <td>`+ element.id +`</td>
+                                    <td>`+ element.idBook +`</td>
+                                    <td>`+ element.firstName +`</td>
+                                    <td>`+ element.lastName +`</td>
+                                    <td>
+                                        <button class="btn btn-success btn-sm">View</button>
+                                        <button class="btn btn-primary btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </td>
+                                </tr>`;
+                    });
+                    tr += `</tbody>
+                            </table>`;
+                    console.log(tr);
+
+                    document.body.innerHTML +=  tr;
+                })
+                .catch(function(error){
+
+                });
+                
+            });
+            
+
+
+        </script>
+
+    </body>
+</html>
