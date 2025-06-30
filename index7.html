@@ -11,6 +11,7 @@
         <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>    
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     </head>
     <body>
         
@@ -20,12 +21,12 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!--View Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" >
         <div class="modal-dialog">
             <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">User View</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body a_modal-body">
@@ -43,10 +44,46 @@
         </div>
         </div>
 
+        <!--Edit Modal -->
+        <div class="modal fade" id="exampleModal2" tabindex="-1" >
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <form>
+                    <div class="mb-3">
+                        <label for="exampleInputEmail1" class="form-label">User Name</label>
+                        <input type="text" class="form-control a_username" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Password</label>
+                        <input type="text" class="form-control a_password" id="exampleInputPassword1">
+                    </div>
+                    <!--
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                        <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                    </div>
+                    -->
+                    <button type="button" class="btn btn-primary a_update">Update</button>
+                </form>
+            </div>            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+            </div>            
+        </div>
+        </div>
+
         <button class="btn btn-primary btn_getusers">Get Users</button>
 
         <script>
             var loader = document.querySelector('.a_myloader');
+            var id = '';
 
             document.querySelector('button.btn_getusers').addEventListener('click',function(){
                 
@@ -83,14 +120,14 @@
                                         <td>`+ element.password +`</td>
                                         <td>
                                             <button class="a_myviewbtn btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">View</button>
-                                            <button class="btn btn-primary btn-sm">Edit</button>
+                                            <button class="a_editbtn btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal2">Edit</button>
                                             <button class="a_mydelbtn btn btn-danger btn-sm">Delete</button>
                                         </td>
                                     </tr>`;
                         });
                         tr += `</tbody>
                                 </table>`;
-                        console.log(tr);
+                        //console.log(tr);
 
                     document.body.innerHTML +=  tr;
                     },
@@ -102,6 +139,7 @@
             });
 
             document.addEventListener('click',function(e){
+                //View Button
                 if(e.target.classList.contains('a_myviewbtn')){
                     console.log('yes');
                     let id = e.target.closest('tr').querySelector('td:first-child').innerHTML;
@@ -115,6 +153,58 @@
                     lg.querySelector('li:last-child').innerHTML = password;
                 }
                 
+                //Edit Button
+                if(e.target.classList.contains('a_editbtn')){
+
+                    //var tr = e.target.closest('tr');
+                    id = e.target.closest('tr').querySelector('td:first-child').innerHTML;
+                    let userName = e.target.closest('tr').querySelector('td:nth-child(2)').innerHTML;
+                    let password = e.target.closest('tr').querySelector('td:nth-child(3)').innerHTML;
+
+                    document.querySelector('.a_username').value = userName;
+                    document.querySelector('.a_password').value = password;
+                    
+                }
+               
+                //Update Button
+                if(e.target.classList.contains('a_update')){
+                    e.preventDefault();
+                    let userName = document.querySelector('.a_username').value;
+                    let password = document.querySelector('.a_password').value;
+                    console.log('user name: '+ userName);
+                    console.log('password:'+ password);
+
+                    var mydata = {
+                                    "id": id,
+                                    "userName": userName,
+                                    "password": password
+                                }
+
+                    $.ajax({
+                        url:'https://fakerestapi.azurewebsites.net/api/v1/Users/'+id,
+                        type:"PUT",
+                        data:JSON.stringify(mydata),
+                        dataType:"json",
+                        contentType:"application/json",
+                        success:function(result,status,xhr){
+                            console.log(status);
+                            //toastr.success('Updated Successfully');
+
+                            //sweet alert
+                            swal({
+                                title: "Good job!",
+                                text: "User Updated Successfully!",
+                                icon: "success",
+                            });
+                            
+                        },
+                        error:function(xhr,status,error){
+                            reject(error);
+                        }
+                    });
+                };
+
+                //Delete Button
                 if(e.target.classList.contains('a_mydelbtn')){
 
                     var tr = e.target.closest('tr');
@@ -128,16 +218,25 @@
                         success:function(result,status,xhr){
                             console.log(status);
                             tr.remove();
-                            //alert('User Deleted Successfully');
-                            toastr.success('Deleted Successfully');
+                            //alert('User Deleted Successfully');                            
+                            //toastr.success('Deleted Successfully');
+
+                            //sweet alert
+                            swal({
+                                title: "Good job!",
+                                text: "User Deleted Successfully!",
+                                icon: "error",
+                            });
                         },
                         error:function(xhr,status,error){
                             reject(error);
                         }
                     });
                 }
+            
             });
 
+               
         </script>
     </body>
 </html>
